@@ -5,6 +5,8 @@ async function hashPassword(password){
         const hash = await bcrypt.hash(password,10);
         return hash;
     } catch (e) {
-        throw Error(" Could Not Hash Password :( ");
+        throw Error("Could Not Hash Password");
     }
 }
+
+module.exports = hashPassword;

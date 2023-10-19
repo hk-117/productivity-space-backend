@@ -1,12 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
-const session = require('express-session');
 const connectToDatabase = require('./utils/database')
-const User = require('./models/user/user');
-const EmailOTP = require('./models/user/emailotp');
-const Category = require('./models/note/category');
-const Note = require('./models/note/note');
+const {StatusCodes} = require('http-status-codes');
+const auth = require('./middlewares/auth');
 const {API_PORT} = process.env;
 
 connectToDatabase().catch((err)=>{
@@ -14,18 +10,17 @@ connectToDatabase().catch((err)=>{
 });
 
 const app = express();
-app.use(bodyParser.urlencoded({extended:false}));
-app.use(session({
-    secret: "Md Zubayer Islam",
-    resave: false,
-    saveUninitialized: true,
-    cookie:{
-        expires: new Date(253402300000000)
-    }
-}));
+app.use(express.json());
 
-app.get('/',(req,res,next)=>{
-    res.send('<h1> Welcome to the Website </h1>');
+const userRoutes = require('./routes/user');
+
+app.use('/user',userRoutes);
+
+app.get('/',auth,(req,res,next)=>{
+    res.status(StatusCodes.OK).send({
+        message: "Welcome to the Website",
+        user: req.user
+    });
 })
 
 app.listen(API_PORT,()=>{
