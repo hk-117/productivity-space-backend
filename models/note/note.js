@@ -10,3 +10,5 @@ const noteSchema = new Schema({
     category: {type: Schema.Types.ObjectId, ref: "Category", required: true},
     created_by: {type: Schema.Types.ObjectId, ref: "User", required: true}
 });
+
+module.exports = mongoose.model("Note",noteSchema);
