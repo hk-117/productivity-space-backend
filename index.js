@@ -13,13 +13,14 @@ const app = express();
 app.use(express.json());
 
 const userRoutes = require('./routes/user');
+const noteRoutes = require('./routes/notes');
 
 app.use('/user',userRoutes);
+app.use('/note',noteRoutes);
 
-app.get('/',auth,(req,res,next)=>{
+app.get('/',(req,res,next)=>{
     res.status(StatusCodes.OK).send({
         message: "Welcome to the Website",
-        user: req.user
     });
 })
 
