@@ -63,3 +63,17 @@ exports.postUserLogin = async(req,res,next) => {
         console.log(e);
     }
 }
+
+exports.getUserDetails = async(req,res,next) => {
+    let user_id = req.params.id;
+    const user = await User.findById(user_id);
+    if(!user){
+        res.status(StatusCodes.BAD_REQUEST).send({
+            message: "User Not Found"
+        });
+        return;
+    }
+    res.status(StatusCodes.OK).send({
+        user    
+    });
+}
