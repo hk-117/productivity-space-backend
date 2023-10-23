@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const connectToDatabase = require('./utils/database')
 const {StatusCodes} = require('http-status-codes');
 const auth = require('./middlewares/auth');
@@ -15,6 +16,7 @@ app.use(express.json());
 const userRoutes = require('./routes/user');
 const noteRoutes = require('./routes/notes');
 
+app.use(cors({ origin: 'http://localhost:8080' }));
 app.use('/user',userRoutes);
 app.use('/note',noteRoutes);
 
