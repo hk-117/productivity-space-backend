@@ -24,7 +24,7 @@ exports.postUserRegister = (req,res,next) => {
         await usr.save();
         res.status(StatusCodes.CREATED).send({
             message: "Your user account is created! Try to Login and Verify Email",
-            usr
+            user : usr
         });
     });
 }
@@ -35,7 +35,7 @@ exports.postUserLogin = async(req,res,next) => {
     try{
         const user = await User.findOne({email:email});
         if(!user){
-            res.status(StatusCodes.BAD_REQUEST).send({
+            res.status(StatusCodes.UNAUTHORIZED).send({
                 message: "User Not Found"
             });
             return;
@@ -55,7 +55,7 @@ exports.postUserLogin = async(req,res,next) => {
                 user
             });
         } else {
-            res.status(StatusCodes.BAD_REQUEST).send({
+            res.status(StatusCodes.UNAUTHORIZED).send({
                 message: "Wrong Credentials!"
             });
         }
@@ -68,7 +68,7 @@ exports.getUserDetails = async(req,res,next) => {
     let user_id = req.params.id;
     const user = await User.findById(user_id);
     if(!user){
-        res.status(StatusCodes.BAD_REQUEST).send({
+        res.status(StatusCodes.NOT_FOUND).send({
             message: "User Not Found"
         });
         return;
