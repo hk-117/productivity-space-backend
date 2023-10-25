@@ -3,14 +3,38 @@ const User = require('../models/user/user');
 const {StatusCodes} = require('http-status-codes');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const validator = require('validator');
 require('dotenv').config();
 const {TOKEN_KEY} = process.env;
 
-exports.postUserRegister = (req,res,next) => {
-    let first_name = req.body.first_name;
-    let last_name = req.body.last_name;
-    let email = req.body.email;
-    let password = req.body.password;
+exports.postUserRegister = async (req,res,next) => {
+    let first_name = req.body.first_name.trim();
+    let last_name = req.body.last_name.trim();
+    let email = req.body.email.trim();
+    let password = req.body.password.trim();
+    if(first_name && last_name && email && password){
+        if(!validator.isEmail(email)){
+            return res.status(StatusCodes.UNAUTHORIZED).send({
+                message: "INVALID_EMAIL"
+            });
+        } else {
+            const user = await User.findOne({email:email});
+            if(user){
+                return res.status(StatusCodes.UNAUTHORIZED).send({
+                    message: "ALREADY_EXIST"
+                });
+            }
+        }
+        if(password.trim().length<8){
+            return res.status(StatusCodes.UNAUTHORIZED).send({
+                message: "SHORT_PASSWORD"
+            });
+        }
+    } else {
+        return res.status(StatusCodes.UNAUTHORIZED).send({
+            message: "INCOMPLETE_FIELDS"
+        });
+    }
     hashPassword(password).then(async(password) => {
         let usr = new User({first_name,last_name,email,password});
         const token = jwt.sign({
@@ -23,20 +47,20 @@ exports.postUserRegister = (req,res,next) => {
         console.log(usr);
         await usr.save();
         res.status(StatusCodes.CREATED).send({
-            message: "Your user account is created! Try to Login and Verify Email",
+            message: "ACCOUNT_CREATED",
             user : usr
         });
     });
 }
 
 exports.postUserLogin = async(req,res,next) => {
-    let email = req.body.email;
+    let email = req.body.email.trim();
     let password = req.body.password;
     try{
         const user = await User.findOne({email:email});
         if(!user){
             res.status(StatusCodes.UNAUTHORIZED).send({
-                message: "User Not Found"
+                message: "USER_NOT_FOUND"
             });
             return;
         }
@@ -51,12 +75,12 @@ exports.postUserLogin = async(req,res,next) => {
             user.token = token;
             await user.save();
             res.status(StatusCodes.OK).send({
-                message: "Logged In Successfully",
+                message: "LOGIN_SUCCESSFUL",
                 user
             });
         } else {
             res.status(StatusCodes.UNAUTHORIZED).send({
-                message: "Wrong Credentials!"
+                message: "PASSWORD_MISMATCH"
             });
         }
     } catch(e) {
@@ -69,7 +93,7 @@ exports.getUserDetails = async(req,res,next) => {
     const user = await User.findById(user_id);
     if(!user){
         res.status(StatusCodes.NOT_FOUND).send({
-            message: "User Not Found"
+            message: "USER_NOT_FOUND"
         });
         return;
     }
