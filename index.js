@@ -16,7 +16,7 @@ app.use(express.json());
 const userRoutes = require('./routes/user');
 const noteRoutes = require('./routes/notes');
 
-app.use(cors({ origin: 'http://localhost:8080' }));
+app.use(cors({ origin: '*' }));
 app.use('/user',userRoutes);
 app.use('/note',noteRoutes);
 
